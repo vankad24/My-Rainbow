@@ -6,18 +6,28 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class MyRainbow extends SurfaceView implements SurfaceHolder.Callback {
-   static MyThread thread;
-
+    static MyThread thread;
+    SurfaceHolder holder;
+    boolean savedRunning=true;
     public MyRainbow(Context context, AttributeSet attrs) {
         super(context, attrs);
-        getHolder().addCallback(this);
+        holder=getHolder();
+        holder.addCallback(this);
+    }
+
+    public MyRainbow(Context context) {
+        super(context);
+
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new MyThread(getHolder());
-        thread.setRunning(true);
-        thread.start();
+        if (thread==null) {
+            thread = new MyThread(getHolder());
+        }
+            thread.setRunning(savedRunning);
+            thread.start();
+
     }
 
     @Override
@@ -27,6 +37,7 @@ public class MyRainbow extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        savedRunning= thread.getRunning();
         thread.setRunning(false);
         try {
             thread.join();
